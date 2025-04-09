@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Hasil Pelacakan Lokasi</title>
+    <style>
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hasil Pelacakan Lokasi</h1>
+    <div id="map">Memuat peta...</div>
+    <ul id="lokasiList">Memuat data lokasi...</ul>
+
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: -6.2, lng: 106.8 }, // Koordinat default (Jakarta)
+                zoom: 5
+            });
+
+            fetch('/api/lokasi')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById("lokasiList");
+                    list.innerHTML = "";
+
+                    data.forEach((lokasi, i) => {
+                        const posisi = { lat: lokasi.latitude, lng: lokasi.longitude };
+
+                        // Tambah marker ke peta
+                        new google.maps.Marker({
+                            position: posisi,
+                            map: map,
+                            label: `${i + 1}`
+                        });
+
+                        // Tambah ke daftar
+                        const item = document.createElement("li");
+                        item.innerHTML = `#${i + 1} - Latitude: ${lokasi.latitude}, Longitude: ${lokasi.longitude}, Waktu: ${lokasi.timestamp}`;
+                        list.appendChild(item);
+                    });
+
+                    if (data.length > 0) {
+                        const terakhir = data[data.length - 1];
+                        map.setCenter({ lat: terakhir.latitude, lng: terakhir.longitude });
+                        map.setZoom(14);
+                    }
+                });
+        }
+    </script>
+
+    <AIzaSyA3RlIsGvvBxpd1VfDCnYxQNGCBC5q05J4>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3RlIsGvvBxpd1VfDCnYxQNGCBC5q05J4&callback=initMap">
+    </script>
+	</body>
+</html>
